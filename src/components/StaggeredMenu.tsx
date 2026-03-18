@@ -38,7 +38,7 @@ export interface StaggeredMenuProps {
 
 export const StaggeredMenu: FC<StaggeredMenuProps> = ({
   position = "right",
-  colors = ["#629BB5", "#5227FF"],
+  colors = ["#629BB5", "#B9D8E1"],
   items = [],
   socialItems = [],
   displaySocials = true,

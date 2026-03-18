@@ -1,17 +1,17 @@
-import GridMotion from './GridMotion';
-import { StaggeredMenu } from './StaggeredMenu';
+import GridMotion from "./GridMotion";
+import { StaggeredMenu } from "./StaggeredMenu";
 
 const menuItems = [
-  { label: 'Home', ariaLabel: 'Go to home page', link: '/' },
-  { label: 'About', ariaLabel: 'Learn about us', link: '/about' },
-  { label: 'Services', ariaLabel: 'View our services', link: '/services' },
-  { label: 'Contact', ariaLabel: 'Get in touch', link: '/contact' },
+  { label: "Home", ariaLabel: "Go to home page", link: "/" },
+  { label: "About", ariaLabel: "Learn about us", link: "/about" },
+  { label: "Services", ariaLabel: "View our services", link: "/services" },
+  { label: "Contact", ariaLabel: "Get in touch", link: "/contact" },
 ];
 
 const socialItems = [
-  { label: 'Twitter', link: 'https://twitter.com' },
-  { label: 'GitHub', link: 'https://github.com' },
-  { label: 'LinkedIn', link: 'https://linkedin.com' },
+  { label: "Twitter", link: "https://twitter.com" },
+  { label: "GitHub", link: "https://github.com/Epolis573" },
+  { label: "LinkedIn", link: "https://linkedin.com" },
 ];
 
 interface HomePageProps {
@@ -20,14 +20,29 @@ interface HomePageProps {
 
 export default function HomePage({ items }: HomePageProps) {
   return (
-    <div style={{ position: 'relative', width: '100vw', height: '100vh', background: '#0a0a0a', overflow: 'hidden' }}>
+    <div
+      style={{
+        position: "relative",
+        width: "100vw",
+        height: "100vh",
+        background: "#0a0a0a",
+        overflow: "hidden",
+      }}
+    >
       {/* Full-screen GridMotion background */}
-      <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
+      <div style={{ position: "absolute", inset: 0, zIndex: 0 }}>
         <GridMotion items={items} gradientColor="rgba(0,0,0,0.6)" />
       </div>
 
       {/* StaggeredMenu overlay — top-right corner */}
-      <div style={{ position: 'absolute', inset: 0, zIndex: 10, pointerEvents: 'none' }}>
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          zIndex: 10,
+          pointerEvents: "none",
+        }}
+      >
         <StaggeredMenu
           position="right"
           items={menuItems}
@@ -37,7 +52,7 @@ export default function HomePage({ items }: HomePageProps) {
           menuButtonColor="#ffffff"
           openMenuButtonColor="#000000"
           changeMenuColorOnOpen={true}
-          colors={['#B19EEF', '#5227FF']}
+          colors={["#629BB5", "#B9D8E1"]}
           accentColor="#00b3ff"
           isFixed={false}
           closeOnClickAway
