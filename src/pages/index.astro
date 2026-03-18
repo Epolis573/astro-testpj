@@ -1,11 +1,91 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+import "../styles/global.css";
+import HomePage from "../components/HomePage";
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+// --- CLOUDINARY SETUP ---
+// 1. Put these in .env file at the root of your project:
+// PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloud_name
+// CLOUDINARY_API_KEY=your_api_key
+// CLOUDINARY_API_SECRET=your_api_secret
+
+const cloudName = import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME;
+const apiKey = import.meta.env.CLOUDINARY_API_KEY;
+const apiSecret = import.meta.env.CLOUDINARY_API_SECRET;
+
+let cloudinaryImages: string[] = [];
+
+// Only attempt to fetch if you have added credentials to .env
+if (cloudName && apiKey && apiSecret) {
+  try {
+    const auth = btoa(`${apiKey}:${apiSecret}`);
+
+    // Make sure this exactly matches the folder name in Cloudinary (it is case-sensitive!)
+    const folderName = "assets";
+
+    // Because your Cloudinary account uses the newer "Asset Folders" feature
+    // (where folder names aren't part of the image URL), we must use the Search API.
+    const response = await fetch(
+      `https://api.cloudinary.com/v1_1/${cloudName}/resources/search`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Basic ${auth}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          expression: `asset_folder="${folderName}"`,
+          max_results: 30,
+        }),
+      },
+    );
+
+    const data = await response.json();
+    if (data.resources) {
+      cloudinaryImages = data.resources.map((img: any) => {
+        // Insert URL transformations for massive performance gains:
+        // - f_auto: serve as WebP/AVIF instead of GIF (10MB → ~50KB)
+        // - q_auto: auto compress quality
+        // - w_400: resize to 400px (GridMotion tiles are small)
+        // - pg_1: use only the first frame of GIFs (no animation = tiny file)
+        return img.secure_url.replace(
+          "/image/upload/",
+          "/image/upload/f_auto,q_auto,w_400/",
+        );
+      });
+    }
+  } catch (error) {
+    console.error("Error fetching from Cloudinary:", error);
+  }
+}
+
+// Fallback images (Unsplash) in case your Cloudinary folder is empty or not set up yet
+const fallbackPhoto =
+  "https://images.unsplash.com/photo-1748370987492-eb390a61dcda?q=80&w=3464&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+const displayImages =
+  cloudinaryImages.length > 0
+    ? cloudinaryImages
+    : Array.from({ length: 28 }, () => fallbackPhoto);
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home</title>
+    <style>
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background: #0a0a0a;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Pass the fetched images into the React island -->
+    <HomePage client:only="react" items={displayImages} />
+  </body>
+</html>
