@@ -26,6 +26,7 @@ export interface StaggeredMenuProps {
   displayItemNumbering?: boolean;
   className?: string;
   logoUrl?: string;
+  showLogo?: boolean;
   menuButtonColor?: string;
   openMenuButtonColor?: string;
   accentColor?: string;
@@ -34,6 +35,9 @@ export interface StaggeredMenuProps {
   closeOnClickAway?: boolean;
   onMenuOpen?: () => void;
   onMenuClose?: () => void;
+  /** Intercept menu item click. If provided, default navigation is prevented
+   *  and this callback fires with the target URL after the menu closes. */
+  onItemClick?: (href: string) => void;
 }
 
 export const StaggeredMenu: FC<StaggeredMenuProps> = ({
@@ -49,9 +53,11 @@ export const StaggeredMenu: FC<StaggeredMenuProps> = ({
   changeMenuColorOnOpen = true,
   accentColor = "#5227FF",
   isFixed = false,
+  showLogo = true,
   closeOnClickAway = true,
   onMenuOpen,
   onMenuClose,
+  onItemClick,
 }: StaggeredMenuProps) => {
   const [open, setOpen] = useState(false);
   const openRef = useRef(false);
@@ -415,19 +421,23 @@ export const StaggeredMenu: FC<StaggeredMenuProps> = ({
           className="staggered-menu-header absolute top-0 left-0 w-full flex items-center justify-between p-[2em] bg-transparent pointer-events-none z-20"
           aria-label="Main navigation header"
         >
-          <div
-            className="sm-logo flex flex-col justify-start items-start select-none pointer-events-auto text-white"
-            aria-label="Logo"
-          >
-            <span className="font-bold text-2xl tracking-widest leading-none">
-              グリッドギャラリー
-            </span>
-            <div className="flex items-start w-full mt-1 ml-1 justify-start">
-              <span className="text-sm font-medium text-white/60 tracking-wide">
-                by Latte
+          {showLogo ? (
+            <div
+              className="sm-logo flex flex-col justify-start items-start select-none pointer-events-auto text-white"
+              aria-label="Logo"
+            >
+              <span className="font-bold text-2xl tracking-widest leading-none">
+                グリッドギャラリー
               </span>
+              <div className="flex items-start w-full mt-1 ml-1 justify-start">
+                <span className="text-sm font-medium text-white/60 tracking-wide">
+                  by Latte
+                </span>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div aria-hidden="true" className="pointer-events-none" />
+          )}
 
           <button
             ref={toggleBtnRef}
@@ -478,6 +488,13 @@ export const StaggeredMenu: FC<StaggeredMenuProps> = ({
                       href={it.link}
                       aria-label={it.ariaLabel}
                       data-index={idx + 1}
+                      onClick={(e) => {
+                        if (onItemClick) {
+                          e.preventDefault();
+                          closeMenu();
+                          onItemClick(it.link);
+                        }
+                      }}
                     >
                       <span className="sm-panel-itemLabel inline-block [transform-origin:50%_100%] will-change-transform">
                         {it.label}

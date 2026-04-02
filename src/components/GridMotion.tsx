@@ -1,4 +1,4 @@
-import { useEffect, useRef, type FC, type ReactNode } from "react";
+import { useEffect, useRef, useMemo, type FC, type ReactNode } from "react";
 import { gsap } from "gsap";
 
 interface GridMotionProps {
@@ -19,8 +19,17 @@ const GridMotion: FC<GridMotionProps> = ({
     { length: totalItems },
     (_, index) => `Item ${index + 1}`,
   );
-  const combinedItems =
-    items.length > 0 ? items.slice(0, totalItems) : defaultItems;
+
+  // Shuffle items on every mount/prop change
+  const combinedItems = useMemo(() => {
+    const sourceItems = items.length > 0 ? items.slice(0, totalItems) : defaultItems;
+    const shuffled = [...sourceItems];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  }, [items]);
 
   useEffect(() => {
     gsap.ticker.lagSmoothing(0);
@@ -72,7 +81,7 @@ const GridMotion: FC<GridMotionProps> = ({
       >
         <div className="absolute inset-0 pointer-events-none z-[4] bg-[length:250px]"></div>
         {/* rotate-[-15deg] */}
-        <div className="gap-4 flex-none relative w-[150vw] h-[150vh] grid grid-rows-4 grid-cols-1 rotate-[-15deg] origin-center z-[2]">
+        <div className="gap-4 flex-none relative w-[200vw] h-[150vh] grid grid-rows-4 grid-cols-1 rotate-[-15deg] origin-center z-[2]">
           {Array.from({ length: 4 }, (_, rowIndex) => (
             <div
               key={rowIndex}
